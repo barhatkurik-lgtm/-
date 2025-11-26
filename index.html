@@ -58,20 +58,20 @@
         @media (max-width: 640px) {
             /* Главный заголовок H1 */
             .header-main-content h1 { 
-                font-size: 1.6rem; /* ФИНАЛЬНОЕ УМЕНЬШЕНИЕ */
+                font-size: 1.6rem; 
                 line-height: 1.1; 
                 word-break: normal; 
-                padding: 0 0.2rem;
+                padding: 0 0.5rem; /* Увеличенный горизонтальный отступ */
             }
             .header-main-content h2 { font-size: 1rem !important; }
 
             /* Заголовки секций H2 */
             section h2 { 
-                font-size: 1.3rem; /* ФИНАЛЬНОЕ УМЕНЬШЕНИЕ */
+                font-size: 1.3rem; 
                 line-height: 1.3; 
                 margin-bottom: 1.5rem; 
                 text-align: center;
-                padding: 0 0.2rem;
+                padding: 0 0.5rem; /* Увеличенный горизонтальный отступ для центрирования */
             }
             section h3 { font-size: 1rem; text-align: center; } 
             
@@ -257,7 +257,8 @@
         <!-- ГЛАВНЫЙ ЭКРАН И ЗАГОЛОВОК -->
         <header class="mb-12">
             <div class="header-main-content">
-                <h1 class="text-4xl sm:text-5xl">РАБОЧАЯ ТЕТРАДЬ ПО<br>ПСИХОДЕЛИЧЕСКОЙ ИНТЕГРАЦИИ</h1>
+                <!-- ПРИНУДИТЕЛЬНЫЙ ПЕРЕНОС: Теперь гарантированно поместится в мобильной версии -->
+                <h1 class="text-4xl sm:text-5xl">РАБОЧАЯ ТЕТРАДЬ ПО<br>ПСИХОДЕЛИЧЕСКОЙ<br>ИНТЕГРАЦИИ</h1>
                 <h2 class="text-xl sm:text-2xl mt-4">MAPS - ИЗМЕНЕНИЕ УМОВ К ЛУЧШЕМУ</h2>
             </div>
             <!-- СИМВОЛ РАЗУМ-ТЕЛО-ДУХ -->
