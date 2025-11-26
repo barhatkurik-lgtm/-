@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочая тетрадь MAPS по интеграции</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb; /* Светлый фон страницы */
+        }
+        .workbook-container {
+            background-color: #ffffff; /* Белый фон тетради */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            border-top: 5px solid #6366f1; /* Фиолетовая полоса сверху */
+        }
+        .section-separator {
+            border-bottom: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+        .area-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background-color: #f9fafb; /* Очень светлый фон для карточек */
+            transition: transform 0.2s;
+        }
+        .area-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        /* Стиль для полей ввода */
+        textarea {
+            resize: vertical;
+            min-height: 40px; /* Минимальная высота для однострочных полей */
+            /* Чтобы поля выглядели как разлинованная тетрадь */
+            background-image: linear-gradient(to bottom, transparent 19px, #ccc 20px);
+            background-size: 100% 20px;
+            line-height: 20px;
+            /* Исправление наезда текста */
+            padding-top: 2px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="text-indigo-600 text-xl font-semibold">Загрузка приложения...</div>
+    </div>
+
+    <div class="workbook-container max-w-4xl mx-auto hidden" id="app-content">
+
+        <!-- Информация о пользователе и статусе -->
+        <div class="flex justify-between items-center mb-4 text-sm text-gray-500">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-600">Ваш личный ID:</span>
+                <span id="user-id-display" class="font-mono font-semibold text-indigo-600 text-base select-all cursor-pointer" title="Скопируйте этот ID, чтобы поделиться">Загрузка...</span>
+            </div>
+            <div>
+                <span class="font-medium text-gray-600">Статус сохранения:</span>
+                <span id="save-status" class="font-medium text-green-600">Не сохранено</span>
+            </div>
+        </div>
+
+        <!-- Кнопка и блок для обмена -->
+        <section class="mb-8 p-6 bg-indigo-50 border border-indigo-300 rounded-xl">
+            <h3 class="text-2xl font-bold text-indigo-800 mb-3">Функция Обмена Озарениями (Для Сообщества)</h3>
+            <p class="text-sm text-gray-700 mb-4">Ваши записи **приватны**. Чтобы поделиться **Духовными озарениями** (раздел ниже), скопируйте свой ID и попросите друга ввести его здесь.</p>
+            <div class="flex space-x-3 mb-2">
+                <input type="text" id="share-target-id" placeholder="Введите ID друга, чтобы увидеть его озарения" class="flex-grow p-3 border border-indigo-400 rounded-lg focus:ring-indigo-500">
+                <button id="load-shared-data-btn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-150 font-semibold">Загрузить чужие озарения</button>
+            </div>
+            <div id="shared-output" class="mt-4 p-4 bg-white border border-dashed border-indigo-400 rounded-lg hidden">
+                <p class="font-semibold text-indigo-700 mb-2">Получено от: <span id="shared-user-id" class="font-mono text-base"></span></p>
+                <div class="text-gray-700 whitespace-pre-wrap" id="shared-insight-content"></div>
+            </div>
+            <div id="share-message" class="mt-3 text-sm font-medium text-red-500"></div>
+        </section>
+
+        <!-- Заголовок и Дисклеймер -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">РАБОЧАЯ ТЕТРАДЬ ПО ПСИХОДЕЛИЧЕСКОЙ ИНТЕГРАЦИИ</h1>
+            <h2 class="text-xl font-medium text-indigo-600 mb-6">MAPS - Мультидисциплинарная ассоциация психоделических исследований</h2>
+            <div class="section-separator"></div>
+            <div class="text-sm text-gray-600 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h3 class="font-bold text-base text-yellow-800 mb-1">Дисклеймер</h3>
+                <p>Эта рабочая тетрадь предназначена исключительно в образовательных целях и не является заменой медицинской или психологической консультации. Пожалуйста, обратитесь к квалифицированному специалисту для получения поддержки психического здоровья. MAPS не продвигает и не поддерживает использование незаконных веществ.</p>
+            </div>
+            <p class="text-md font-semibold mt-4 text-gray-700">
+                <span class="text-indigo-600 font-bold">Наша миссия:</span> Изменение умов к лучшему
+            </p>
+            <p class="text-xs text-gray-400 mt-2">© 2025 Мультидисциплинарная ассоциация психоделических исследований, Inc.</p>
+        </header>
+
+        <!-- ДОБРО ПОЖАЛОВАТЬ -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ДОБРО ПОЖАЛОВАТЬ НА ВАШУ ИНТЕГРАЦИОННУЮ ДОРОГУ</h2>
+            <p class="text-gray-700 mb-4">Эта рабочая тетрадь разработана для поддержки вашей психоделической интеграционной дороги, предлагая пространство для размышления, творчества и постоянного личностного роста. Вы приглашаетесь двигаться по этим страницах интуитивно — реагируя на то, что резонирует, и откладывая в сторону то, что нет. Ваша дорога уникальна, и эта рабочая тетрадь — просто спутник на пути.</p>
+            <p class="text-lg font-bold text-center text-indigo-600 mb-4 bg-indigo-50 p-2 rounded-lg">Нет правильного или неправильного способа использовать эту рабочую тетрадь.</p>
+            <h3 class="text-2xl font-semibold text-gray-800 mb-3">Что вы найдете внутри:</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                <li>Подсказки для обработки и запоминания ваших опытов</li>
+                <li>Упражнения для углубления вашей связи с разумом, телом, духом и сообществом</li>
+                <li>Творческие занятия для поддержки эмоционального выражения и озарения</li>
+                <li>Мягкое руководство по интеграции психоделических опытов в вашу повседневную жизнь</li>
+            </ul>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ЧТО ТАКОЕ ПСИХОДЕЛИЧЕСКАЯ ИНТЕГРАЦИЯ? -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ЧТО ТАКОЕ ПСИХОДЕЛИЧЕСКАЯ ИНТЕГРАЦИЯ?</h2>
+            <p class="text-gray-700 mb-4">Процесс интеграции включает в себя придание смысла и включение озарений, эмоций и изменений, которые могут возникнуть во время психоделического путешествия, в вашу повседневную жизнь. Интеграция — это существенный аспект психоделического опыта, потому что эти вещества могут вызывать интенсивные и часто сложные озарения, эмоции и сдвиги в перспективе.</p>
+            <p class="text-gray-700 mb-4">Не существует универсального подхода к интеграции. Вы можете делать это самостоятельно или с поддержкой сверстников, сообщества, тренеров или терапевтов. Существует большое разнообразие стратегий интеграции и много фреймворков и практик, которые можно использовать.</p>
+            <p class="text-gray-700">Психоделическая интеграция — это личный и постоянный процесс. Опыт каждого человека уникален, и процесс интеграции может развиваться в течение длительного времени. Профессиональное или опытное руководство, когда оно доступно, может быть полезным при содействии более структурированному и поддерживающему процессе интеграции.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПОЧЕМУ МНЕ НУЖНА РАБОЧАЯ ТЕТРАДЬ ПО ИНТЕГРАЦИИ? -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПОЧЕМУ МНЕ НУЖНА РАБОЧАЯ ТЕТРАДЬ ПО ИНТЕГРАЦИИ?</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-600 mb-2">Размышление и переработка</h3>
+                    <p class="text-gray-700">Психоделические опыты могут быть интенсивными и глубокими. Эта тетрадь предоставляет пространство для размышления и обработки этих опытов структурированным и преднамеренным способом.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-600 mb-2">Улучшение памяти</h3>
+                    <p class="text-gray-700">Тетрадь может помочь вам захватить и сохранить детали, которые может быть сложно запомнить точно со временем, гарантируя, что у вас есть запись ваших мыслей и опытов.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-600 mb-2">Эмоциональное выражение</h3>
+                    <p class="text-gray-700">Написание позволяет вам выражать и исследовать свои эмоции в безопасном и приватном пространстве, что особенно важно при работе со сложными эмоциями.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-600 mb-2">Отмечание прогресса</h3>
+                    <p class="text-gray-700">Регулярное документирование мыслей и чувств позволяет вам отслеживать ваш прогресс, рост и изменения, обеспечивая чувство достижения.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПЕРЕД ТЕМ, КАК НАЧАТЬ -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПЕРЕД ТЕМ, КАК НАЧАТЬ</h2>
+            <ol class="list-decimal pl-5 space-y-4 text-gray-700">
+                <li><strong class="text-indigo-600">Установите намерения:</strong> Подумайте, что вы надеетесь исследовать, понять или поработать во время опыта.</li>
+                <li><strong class="text-indigo-600">Выберите поддерживающую обстановку:</strong> Убедитесь, что физическое и социальное окружение безопасно, удобно и поддерживающе.</li>
+                <li><strong class="text-indigo-600">Культивируйте практики осознанности:</strong> Включите ведение дневника, медитацию или упражнения глубокого дыхания в вашу ежедневную рутину.</li>
+                <li><strong class="text-indigo-600">Установите план интеграции:</strong> Определите действия или практики, в которых вы можете участвовать после опыта.</li>
+                <li><strong class="text-indigo-600">Постройте систему поддержки:</strong> Свяжитесь с друзьями, семьей или сообществом, которые понимают и поддерживают вашу решимость исследовать психоделики.</li>
+            </ol>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- КОГДА СЛЕДУЕТ ИНТЕГРИРОВАТЬСЯ И КАК ДОЛГО? -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">КОГДА СЛЕДУЕТ ИНТЕГРИРОВАТЬСЯ И КАК ДОЛГО?</h2>
+            <h3 class="text-2xl font-semibold text-indigo-600 mb-2">Правильное время для начала</h3>
+            <p class="text-gray-700 mb-4">Многие выбирают начать интеграцию вскоре после психоделического опыта. Считается, что этот опыт приводит к периоду повышенной нейропластичности, который длится от нескольких дней до месяца или около того используя этот период восприимчивости к изменениям.</p>
+            <h3 class="text-2xl font-semibold text-indigo-600 mb-2">Интеграция как процесс на всю жизнь</h3>
+            <p class="text-gray-700">Интеграция — это не одноразовое событие, а постоянный процесс. Вы можете продолжать интегрировать глубокий психоделический опыт на протяжении многих лет или даже всей жизни.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПОНИМАНИЕ «ХОРОШИХ» И «ПЛОХИХ» ПУТЕШЕСТВИЙ -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПОНИМАНИЕ «ХОРОШИХ» И «ПЛОХИХ» ПУТЕШЕСТВИЙ</h2>
+            <p class="text-gray-700 mb-4">Мы поощряем вас глубже погрузиться и подойти к себе, миру и опытам как можно более холистически. Удовольствие, если его преследовать, может стать частью вредных циклов; вызовы, если им противостоять, могут произвести некоторые из наиболее значимых и длительных влияний.</p>
+            <p class="text-lg font-bold text-center text-red-600 bg-red-50 p-3 rounded-lg mt-4">«Трудное не значит плохое»</p>
+            <p class="text-sm text-gray-600 mt-2">Если у вас был сложный или сложный опыт, вы не одиноки. Доступна помощь во всех формах, от быстрых советов до добровольцев и профессионалов, которые специализируются на интеграции сложных опытов.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ШЕСТЬ ОБЛАСТЕЙ ИНТЕГРАЦИИ -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ШЕСТЬ ОБЛАСТЕЙ ИНТЕГРАЦИИ</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">УМ</h3>
+                    <p class="text-sm text-gray-600">Обработка и интеграция эмоций и озарений через язык и психические процессы.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">ТЕЛО</h3>
+                    <p class="text-sm text-gray-600">Влияние на физическое здоровье, привычки и углубление связи с телом через практики осознанного движения.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">ДУХ</h3>
+                    <p class="text-sm text-gray-600">Исследование духовных или экзистенциальных озарений и их интеграция в ваше понимание цели и смысла жизни.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">ОТНОШЕНИЯ</h3>
+                    <p class="text-sm text-gray-600">Размышление о влиянии опыта на связи с друзьями, семьей, партнерами или более широким сообществом.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">ПРИРОДА</h3>
+                    <p class="text-sm text-gray-600">Размышление о влиянии на экологическое сознание и практики, способствующие связи с естественным миром.</p>
+                </div>
+                <div class="area-card">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">ОБРАЗ ЖИЗНИ</h3>
+                    <p class="text-sm text-gray-600">Определение рутин и привычек, которые поддерживают ваше благополучие, используя период повышенной нейропластичности.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ШЕСТЬ КОНТИНУУМОВ ИНТЕГРАЦИИ -->
+        <section class="mb-10 p-6 bg-gray-50 border border-gray-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ШЕСТЬ КОНТИНУУМОВ ИНТЕГРАЦИИ</h2>
+            <div class="space-y-4">
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Созерцательное ↔ Экспрессивное</h3>
+                    <p class="text-sm text-gray-600 mb-2">Действия на этом континууме могут включать рассмотрение наших мыслей и чувств и/или их выражение. Это может быть медитация или экстатический танец.</p>
+                    <label class="block text-gray-700 font-medium">Как вы балансируете между внутренним размышлением и внешним выражением?
+                        <textarea data-field="cont_contemplative_expressive" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Внутреннее ↔ Внешнее</h3>
+                    <p class="text-sm text-gray-600 mb-2">Когда мы работаем с этим континуумом, мы можем обратиться внутрь или переместить наше внимание в окружающий мир (ведение дневника или обмен опытом с другом).</p>
+                    <label class="block text-gray-700 font-medium">Когда вы чувствуете потребность обратиться внутрь, а когда — во внешний мир?
+                        <textarea data-field="cont_internal_external" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Творческое ↔ Восприимчивое</h3>
+                    <p class="text-sm text-gray-600 mb-2">Рисование, создание искусства (творческое) или получение глубокого озарения через мистические опыты (восприимчивое).</p>
+                    <label class="block text-gray-700 font-medium">Какой способ интеграции преобладает у вас: создание или восприятие?
+                        <textarea data-field="cont_creative_receptive" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Сознательное ↔ Бессознательное</h3>
+                    <p class="text-sm text-gray-600 mb-2">Переформирование ограничивающих убеждений (бессознательное) или внесение изменений в привычки (сознательное).</p>
+                    <label class="block text-gray-700 font-medium">Какие бессознательные убеждения проявились и требуют сознательной работы?
+                        <textarea data-field="cont_conscious_unconscious" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Забота о себе ↔ Вызов себе</h3>
+                    <p class="text-sm text-gray-600 mb-2">Интеграция может быть пространством для самообслуживания, но часто включает элемент вызова, который является важной частью роста.</p>
+                    <label class="block text-gray-700 font-medium">Где вам нужно больше заботы о себе, а где — намеренно принять вызов?
+                        <textarea data-field="cont_selfcare_challenge" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <h3 class="font-bold text-xl text-indigo-700 mb-1">Активное ↔ Пассивное</h3>
+                    <p class="text-sm text-gray-600 mb-2">Смыслоделание может происходить как через действие (спорт, хобби), так и через отдых (медитация).</p>
+                    <label class="block text-gray-700 font-medium">Какие активные и пассивные практики интеграции вы используете?
+                        <textarea data-field="cont_active_passive" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: УМ -->
+        <section class="mb-10 p-6 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-yellow-800 mb-4">ОБЛАСТЬ: УМ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Как психоделический опыт повлиял на ваши эмоции? Были ли моменты интенсивной радости, страха или грусти?
+                    <textarea data-field="mind_emotions_impact" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Как ваши паттерны мышления сдвинулись с момента вашего психоделического опыта? Есть ли повторяющиеся темы или новые перспективы?
+                    <textarea data-field="mind_thought_patterns" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете включить осознанность в вашу ежедневную рутину для поддержания психической ясности?
+                    <textarea data-field="mind_mindfulness" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте роль благодарности в вашей жизни. За что вы благодарны?
+                    <textarea data-field="mind_gratitude" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ТЕЛО -->
+        <section class="mb-10 p-6 bg-red-50 border border-red-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-red-800 mb-4">ОБЛАСТЬ: ТЕЛО</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">При воспоминании частей вашего опыта, какие ощущения вы замечаете в вашем теле или вокруг него?
+                    <textarea data-field="body_sensations" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите, как ваш опыт может повлиять на ваши отношения с едой и общее благополучие. Есть ли изменения, которые вы хотели бы внедрить?
+                    <textarea data-field="body_diet_changes" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете поддерживать более глубокую связь с вашим телом через практики, такие как йога, медитация или осознанное движение?
+                    <textarea data-field="body_practices" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ДУХ (Секция с публичным полем) -->
+        <section class="mb-10 p-6 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-yellow-800 mb-4">ОБЛАСТЬ: ДУХ</h2>
+             <label class="block text-gray-700 font-medium">Размышляйте об опытах духовного соединения или чувстве единства во время путешествия. Как вы можете питать и интегрировать эту связь в ваши духовные практики?
+                <textarea data-field="shared_spiritual_insights" rows="4" placeholder="Введите здесь ваше самое сильное духовное озарение или чувство единства. Этим текстом вы сможете поделиться с друзьями, используя ваш ID пользователя (см. выше)." class="w-full mt-1 p-2 border border-indigo-400 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </label>
+            <div class="space-y-4 mt-4">
+                <label class="block text-gray-700 font-medium">Исследуйте практики, которые соответствуют уму, телу и духу.
+                    <textarea data-field="spirit_practices" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите любые смены в ваших убеждениях или перспективах на духовность.
+                    <textarea data-field="spirit_beliefs_shift" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ОТНОШЕНИЯ -->
+        <section class="mb-10 p-6 bg-purple-50 border border-purple-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-purple-800 mb-4">ОБЛАСТЬ: ОТНОШЕНИЯ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Размышляйте о влиянии вашего опыта на ваши отношения. Как вы можете способствовать более глубоким связям и более открытой коммуникации?
+                    <textarea data-field="rel_communication_impact" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте, существуют ли безопасные и поддерживающие пространства для обмена вашими психоделическими опытами в вашем сообществе.
+                    <textarea data-field="rel_safe_spaces" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите, есть ли аспекты вашей коммуникации или поведения, которые вы хотели бы улучшить.
+                    <textarea data-field="rel_behavior_improvement" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ПРИРОДА -->
+        <section class="mb-10 p-6 bg-indigo-50 border border-indigo-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-indigo-800 mb-4">ОБЛАСТЬ: ПРИРОДА</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Размышляйте об опытах соединения с природой. Как вы можете продолжить способствовать отношениям с естественным миром в своей повседневной жизни?
+                    <textarea data-field="nature_connection" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте, как ваши психоделические озарения могут повлиять на вашу экологическую осведомленность и какие инициативы вы вдохновлены поддерживать?
+                    <textarea data-field="nature_ecological_awareness" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ОБРАЗ ЖИЗНИ -->
+        <section class="mb-10 p-6 bg-green-50 border border-green-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-green-800 mb-4">ОБЛАСТЬ: ОБРАЗ ЖИЗНИ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Определите ритуалы или рутины, которые поддерживают ваше благополучие в областях ума, тела и духа.
+                    <textarea data-field="lifestyle_routines" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Размышляйте о важности установки здоровых границ. Как вы можете установить и сообщить границы?
+                    <textarea data-field="lifestyle_boundaries" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Определите конкретные действия или привычки, которые соответствуют положительным аспектам вашего путешествия. Как вы можете постепенно их внедрить?
+                    <textarea data-field="lifestyle_new_habits" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЗОР ВАШЕГО ОПЫТА (Продолжение) -->
+        <section class="mb-10 p-6 bg-indigo-50 border border-indigo-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-indigo-800 mb-4">ОБЗОР ВАШЕГО ОПЫТА (Продолжение)</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Каковы были ваши намерения для этого опыта?
+                    <textarea data-field="intentions" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Опишите общее чувство вашего психоделического опыта. Какие эмоции, мысли и ощущения выделились для вас больше всего?
+                    <textarea data-field="overall_feeling" rows="4" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете обратиться и обработать эти эмоции полезным способом?
+                    <textarea data-field="process_emotions" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ХУДОЖЕСТВЕННОЕ ВЫРАЖЕНИЕ -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ХУДОЖЕСТВЕННОЕ ВЫРАЖЕНИЕ</h2>
+            <div class="area-card bg-purple-50 border-purple-200">
+                <p class="text-lg font-bold text-purple-700 mb-3">Искусство может дать озарение в бессознательное, давая голос чему-то сверх того, что может понять эго.</p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Как вы можете продолжить выражение себя творчески в своей повседневной жизни?</h3>
+                <textarea data-field="creative_continuation" rows="3" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-4">Размышляйте о символизме и смысле, стоящих за вашими творениями.</h3>
+                <textarea data-field="creative_symbolism" rows="4" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ИНТЕГРАЦИЯ ВАШЕЙ ИНТЕГРАЦИИ -->
+        <section class="mb-10 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+            <h2 class="text-3xl font-semibold text-blue-800 mb-4">ИНТЕГРАЦИЯ ВАШЕЙ ИНТЕГРАЦИИ</h2>
+            <p class="text-gray-700 mb-4">Размышляйте о ваших интеграционных деятельности. Появляются ли какие-то новые темы или озарения?</p>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Появилось ли что-нибудь, что вы хотели бы разделить с членом вашей сети поддержки?
+                    <textarea data-field="meta_share_support" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+                <label class="block text-gray-700 font-medium">Что вы хотели бы помнить в следующий раз, когда вы устанавливаете намерения?
+                    <textarea data-field="meta_next_intentions" rows="2" placeholder="Ваш ответ..." class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ЧТО ДАЛЬШЕ? -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ЧТО ДАЛЬШЕ?</h2>
+            <p class="text-lg font-bold text-indigo-600 mb-3">Поздравления!</p>
+            <p class="text-gray-700 mb-6">Теперь, когда вы интегрировали ваш психоделический опыт, вы начали постоянное путешествие личностного и духовного роста. Пост-интеграция — это не фиксированная конечная точка, а скорее продолжение преобразующего процесса.</p>
+            
+            <h3 class="text-2xl font-semibold text-gray-800 mb-3">Ключевые направления движения вперед:</h3>
+            <ul class="list-disc pl-5 space-y-3 text-gray-700">
+                <li><strong class="text-indigo-600">Постоянное самоанализ:</strong> Культивируйте привычку регулярного самоанализа.</li>
+                <li><strong class="text-indigo-600">Интеграция уроков в повседневную жизнь:</strong> Активно применяйте озарения, полученные во время интеграции, в ваш ежедневный выбор.</li>
+                <li><strong class="text-indigo-600">Поиск профессионального руководства:</strong> При необходимости, продолжайте искать руководство у терапевтов или консультантов.</li>
+                <li><strong class="text-indigo-600">Установление новых намерений:</strong> Рассмотрите установление новых намерений для вашего постоянного путешествия.</li>
+            </ul>
+        </section>
+
+        <!-- Заключительное примечание -->
+        <footer class="mt-10 pt-6 border-t border-gray-300 text-center">
+            <p class="text-sm text-gray-500 mb-4">Важно подходить к этому периоду после интеграции с терпением и открытостью. Всегда приоритизируйте свое благополучие.</p>
+            <p class="text-xs text-gray-400">**© 2025 MAPS (Мультидисциплинарная ассоциация психоделических исследований)**</p>
+            <p class="text-xs text-gray-400">Это произведение распространяется в образовательных целях. Для получения дополнительной информации посетите <a href="https://maps.org" target="_blank" class="text-indigo-500 hover:text-indigo-700">maps.org</a></p>
+        </footer>
+
+    </div>
+
+    <!-- Firebase Imports and Application Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Canvas variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-maps-workbook-app';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const appContent = document.getElementById('app-content');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const saveStatus = document.getElementById('save-status');
+        const shareMessageDemo = '⚠️ ДЕМО-РЕЖИМ: Данные не сохраняются в облаке, поскольку файл открыт локально. Чтобы включить сохранение, загрузите файл на веб-сервер.';
+        const shareMessageAuth = '❌ Ошибка аутентификации. Сохранение данных невозможно.';
+
+        const shareTargetInput = document.getElementById('share-target-id');
+        const loadSharedDataBtn = document.getElementById('load-shared-data-btn');
+        const sharedOutputDiv = document.getElementById('shared-output');
+        const sharedUserIdSpan = document.getElementById('shared-user-id');
+        const sharedInsightContentP = document.getElementById('shared-insight-content');
+        const shareMessageDiv = document.getElementById('share-message');
+
+        // Инициализация Firebase и аутентификация
+        async function initializeFirebase() {
+            try {
+                // Если не удалось получить конфигурацию, переходим в ДЕМО-РЕЖИМ
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing. Running in non-persistent mode.");
+                    userIdDisplay.textContent = 'ДЕМО-РЕЖИМ (данные не сохранятся)';
+                    saveStatus.textContent = shareMessageDemo;
+                    saveStatus.classList.add('text-red-500');
+                    loadingOverlay.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    return; // Выход, если конфигурация отсутствует
+                }
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // Слушатель изменения состояния аутентификации
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplay.textContent = userId;
+                        isAuthReady = true;
+                        console.log("User authenticated. ID:", userId);
+                        loadData();
+                    } else {
+                        console.log("Authentication state changed, but no user yet.");
+                    }
+                });
+
+                // Выполняем вход: сначала пробуем кастомный токен, затем анонимный
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                appContent.classList.remove('hidden');
+                loadingOverlay.classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error during Firebase initialization or sign-in:", error);
+                userIdDisplay.textContent = 'Ошибка аутентификации!';
+                saveStatus.textContent = shareMessageAuth;
+                saveStatus.classList.add('text-red-500');
+                loadingOverlay.classList.add('hidden');
+                appContent.classList.remove('hidden');
+            }
+        }
+
+        // --- Логика сохранения/загрузки данных (ПРИВАТНЫЕ ДАННЫЕ) ---
+
+        const PRIVATE_COLLECTION_NAME = 'integration_workbook';
+        const PRIVATE_DOCUMENT_ID = 'user_data';
+        const SHARED_COLLECTION_NAME = 'shared_insights';
+
+        // Получает ссылку на приватный документ пользователя
+        function getPrivateUserDocRef() {
+            if (!db || !userId) return null;
+            // Путь для частных данных: /artifacts/{appId}/users/{userId}/{collection_name}/{documentId}
+            const path = `artifacts/${appId}/users/${userId}/${PRIVATE_COLLECTION_NAME}/${PRIVATE_DOCUMENT_ID}`;
+            return doc(db, path);
+        }
+
+        // Получает ссылку на публичный документ для обмена
+        function getSharedDocRef(targetUserId) {
+             if (!db || !targetUserId) return null;
+            // Путь для публичных данных: /artifacts/{appId}/public/data/{collection_name}/{documentId}
+            const path = `artifacts/${appId}/public/data/${SHARED_COLLECTION_NAME}/${targetUserId}`;
+            return doc(db, path);
+        }
+
+        // Загрузка данных из Firestore (Приватные)
+        async function loadData() {
+            const docRef = getPrivateUserDocRef();
+            if (!docRef) return;
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Заполнение полей
+                    document.querySelectorAll('textarea[data-field]').forEach(textarea => {
+                        const field = textarea.getAttribute('data-field');
+                        if (data[field]) {
+                            textarea.value = data[field];
+                        }
+                    });
+                    saveStatus.textContent = 'Загружено';
+                } else {
+                    saveStatus.textContent = 'Новая тетрадь';
+                }
+            } catch (e) {
+                console.error("Error loading data:", e);
+                saveStatus.textContent = 'Ошибка загрузки';
+            }
+        }
+
+        // Сохранение данных в Firestore (с защитой от частых запросов)
+        let saveTimeout;
+        async function saveData() {
+            // Если Firebase не инициализирован (демо-режим), просто игнорируем сохранение
+            if (!isAuthReady || !db) {
+                saveStatus.textContent = shareMessageDemo;
+                saveStatus.classList.add('text-red-500');
+                return;
+            }
+
+            saveStatus.textContent = 'Сохранение...';
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                const docRef = getPrivateUserDocRef();
+                if (!docRef) {
+                    saveStatus.textContent = 'Ошибка: нет ID пользователя';
+                    return;
+                }
+
+                const data = {};
+                document.querySelectorAll('textarea[data-field]').forEach(textarea => {
+                    const field = textarea.getAttribute('data-field');
+                    data[field] = textarea.value;
+                });
+
+                try {
+                    // 1. Сохраняем приватные данные
+                    await setDoc(docRef, data, { merge: true });
+                    
+                    // 2. Публикуем общие озарения (SHARED_INSIGHTS)
+                    const sharedInsights = data['shared_spiritual_insights'] || '';
+                    if (sharedInsights) {
+                        const sharedDocRef = getSharedDocRef(userId); // Используем свой ID для сохранения своих публичных данных
+                        await setDoc(sharedDocRef, {
+                            userId: userId,
+                            insights: sharedInsights,
+                            timestamp: new Date().toISOString()
+                        }, { merge: true });
+                    }
+                    
+                    saveStatus.textContent = 'Сохранено (последнее)';
+                } catch (e) {
+                    console.error("Error saving document:", e);
+                    saveStatus.textContent = 'Ошибка сохранения!';
+                }
+            }, 1000); // Задержка в 1 секунду
+        }
+        
+        // --- Логика загрузки общих озарений (ПУБЛИЧНЫЕ ДАННЫЕ) ---
+
+        async function loadSharedData() {
+            if (!isAuthReady || !db) {
+                shareMessageDiv.textContent = 'Приложение не готово или находится в демо-режиме (нет доступа к облаку).';
+                return;
+            }
+
+            const targetId = shareTargetInput.value.trim();
+            shareMessageDiv.textContent = '';
+            sharedOutputDiv.classList.add('hidden');
+            
+            if (!targetId) {
+                shareMessageDiv.textContent = 'Пожалуйста, введите ID пользователя.';
+                return;
+            }
+
+            if (targetId === userId) {
+                 shareMessageDiv.textContent = 'Вы пытаетесь загрузить свои собственные озарения. Они уже находятся в вашей тетради.';
+                 return;
+            }
+
+            const docRef = getSharedDocRef(targetId);
+            if (!docRef) return;
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    sharedUserIdSpan.textContent = data.userId;
+                    sharedInsightContentP.textContent = data.insights;
+                    
+                    sharedOutputDiv.classList.remove('hidden');
+                    shareMessageDiv.textContent = 'Общие озарения успешно загружены.';
+
+                } else {
+                    sharedOutputDiv.classList.add('hidden');
+                    shareMessageDiv.textContent = `Пользователь с ID ${targetId} не поделился публичными озарениями.`;
+                }
+            } catch (e) {
+                console.error("Error loading shared data:", e);
+                shareMessageDiv.textContent = 'Произошла ошибка при попытке загрузить общие озарения.';
+            }
+        }
+
+        // Добавление слушателей событий
+        function attachInputListeners() {
+            document.querySelectorAll('textarea[data-field]').forEach(textarea => {
+                textarea.addEventListener('input', saveData);
+            });
+            loadSharedDataBtn.addEventListener('click', loadSharedData);
+        }
+
+        // Запуск приложения
+        initializeFirebase();
+        attachInputListeners();
+    </script>
+</body>
+</html>
