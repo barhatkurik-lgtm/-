@@ -54,26 +54,26 @@
             color: var(--text-light) !important;
         }
         
-        /* --- Адаптивность заголовков для мобильных устройств --- */
+        /* --- Адаптивность заголовков для мобильных устройств (ФИНАЛЬНЫЕ ИСПРАВЛЕНИЯ) --- */
         @media (max-width: 640px) {
             /* Главный заголовок H1 */
             .header-main-content h1 { 
-                font-size: 1.8rem; /* Дополнительное уменьшение */
+                font-size: 1.6rem; /* ФИНАЛЬНОЕ УМЕНЬШЕНИЕ */
                 line-height: 1.1; 
                 word-break: normal; 
-                padding: 0 0.5rem; /* Небольшой горизонтальный отступ для предотвращения обрезки */
+                padding: 0 0.2rem;
             }
-            .header-main-content h2 { font-size: 1.1rem !important; }
+            .header-main-content h2 { font-size: 1rem !important; }
 
-            /* Заголовки секций H2 и H3 */
+            /* Заголовки секций H2 */
             section h2 { 
-                font-size: 1.4rem; 
+                font-size: 1.3rem; /* ФИНАЛЬНОЕ УМЕНЬШЕНИЕ */
                 line-height: 1.3; 
                 margin-bottom: 1.5rem; 
                 text-align: center;
-                padding: 0 0.2rem; /* Небольшой отступ */
+                padding: 0 0.2rem;
             }
-            section h3 { font-size: 1.1rem; text-align: center; } 
+            section h3 { font-size: 1rem; text-align: center; } 
             
             /* Исправление для flex-контейнеров с иконками, чтобы h3 и иконки не съезжали */
             .area-card h3 {
