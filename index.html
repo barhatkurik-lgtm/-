@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочая тетрадь MAPS по интеграции (Шаблон)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome для иконок --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1; /* Indigo 500 */
+            --primary-light: #818cf8; /* Indigo 400 */
+            --text-color-medium: #4b5563; /* Gray 700 */
+            --bg-light: #f7f9fb;
+            --bg-white: #ffffff;
+            --shadow-medium: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px -5px rgba(0, 0, 0, 0.04);
+            --line-color: #d1d5db; /* Светло-серый цвет для рамок */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-color-medium);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, var(--bg-light) 0%, #fefefe 100%); 
+        }
+
+        .workbook-container {
+            background-color: var(--bg-white);
+            box-shadow: var(--shadow-medium);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @media (min-width: 640px) {
+            .workbook-container {
+                padding: 3rem 2rem;
+            }
+        }
+
+        .section-separator {
+            border-bottom: 2px solid #e5e7eb;
+            margin: 2.5rem 0;
+        }
+
+        .area-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background-color: #f9fafb;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .area-card:hover {
+            transform: translateY(-5px) scale(1.01); /* Более выраженное движение и легкое увеличение */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-light);
+        }
+        
+        /* Стиль для блока записи (без линий, в рамке) */
+        .writing-block {
+            min-height: 100px; /* Минимальная высота блока */
+            border: 2px solid var(--line-color); /* Утолщенная рамка */
+            border-radius: 8px;
+            margin-top: 0.75rem;
+            padding: 1.5rem; /* Увеличенный отступ */
+            background-color: #ffffff;
+            font-style: italic;
+            color: #9ca3af; 
+            text-align: center; /* Центрируем текст подсказки */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: border-color 0.3s ease;
+        }
+        .writing-block:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Анимация пульсации для hero-блока */
+        @keyframes pulse-float {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .hero-symbol {
+            animation: pulse-float 4s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.5));
+        }
+
+        /* Анимация появления секций при скролле (Scroll Reveal) */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gradient-bg-section {
+            background-image: linear-gradient(to right top, #eef1ff, #f3f5ff, #f8f9ff, #fcfcff, #ffffff);
+            border: 1px solid #e0e7ff;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
+        }
+        .text-gradient-primary {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <!-- УДАЛЕН ЭЛЕМЕНТ loading-overlay -->
+
+    <div class="workbook-container max-w-4xl mx-auto" id="app-content">
+
+        <!-- Заголовок и Дисклеймер --><header class="text-center mb-12 scroll-reveal">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gradient-primary mb-2">РАБОЧАЯ ТЕТРАДЬ ПО ПСИХОДЕЛИЧЕСКОЙ ИНТЕГРАЦИИ</h1>
+            <h2 class="text-xl sm:text-2xl font-medium text-indigo-600 mb-6">MAPS - Мультидисциплинарная ассоциация психоделических исследований</h2>
+            <div class="section-separator"></div>
+            <div class="text-sm text-gray-600 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
+                <h3 class="font-bold text-base text-yellow-800 mb-1">Дисклеймер</h3>
+                <p>Эта рабочая тетрадь предназначена исключительно в образовательных целях и не является заменой медицинской или психологической консультации. Пожалуйста, обратитесь к квалифицированному специалисту для получения поддержки психического здоровья. MAPS не продвигает и не поддерживает использование незаконных веществ.</p>
+            </div>
+            <p class="text-md font-semibold mt-4 text-gray-700">
+                <span class="text-indigo-600 font-bold">Наша миссия:</span> Изменение умов к лучшему
+            </p>
+            <p class="text-xs text-gray-400 mt-2">© 2025 Мультидисциплинарная ассоциация психоделических исследований, Inc.</p>
+        </header>
+
+        <!-- ГЛАВНЫЙ АНИМИРОВАННЫЙ БЛОК -->
+        <section class="mb-12 scroll-reveal p-6 sm:p-8 bg-indigo-50 rounded-xl shadow-lg border-2 border-indigo-200">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">ДОБРО ПОЖАЛОВАТЬ НА ВАШУ ИНТЕГРАЦИОННУЮ ДОРОГУ</h2>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-8">
+                
+                <!-- Анимированный символ -->
+                <div class="relative w-32 h-32 flex items-center justify-center">
+                    <svg class="w-full h-full text-indigo-400 hero-symbol" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Основной круг (Разум/Дух) -->
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="5" />
+                        <!-- Сердце (Тело/Эмоции) -->
+                        <path d="M50 80 L35 65 L45 55 L50 60 L55 55 L65 65 Z" fill="white" stroke="currentColor" stroke-width="2"/>
+                        <!-- Мозг/Озарение (Символ внутри) -->
+                        <path d="M35 30 Q40 20, 50 30 T65 30 L60 40 L40 40 Z" fill="white" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="5" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <!-- Текст и список -->
+                <div class="text-center sm:text-left max-w-lg">
+                    <p class="text-gray-700 mb-4">Эта рабочая тетрадь разработана для поддержки вашей психоделической интеграционной дороги, предлагая пространство для размышления, творчества и постоянного личностного роста.</p>
+                    <p class="text-lg font-bold text-center text-indigo-800 mb-4 bg-indigo-100 p-2 rounded-lg shadow-inner">Ваша дорога уникальна, и эта тетрадь — спутник на пути.</p>
+                    <h3 class="text-xl font-semibold text-gray-800 mt-4 mb-3">Что вы найдете внутри:</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-700 text-sm">
+                        <li>Подсказки для обработки и запоминания ваших опытов</li>
+                        <li>Упражнения для углубления вашей связи с разумом, телом, духом и сообществом</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ЧТО ТАКОЕ ПСИХОДЕЛИЧЕСКАЯ ИНТЕГРАЦИЯ? --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ЧТО ТАКОЕ ПСИХОДЕЛИЧЕСКАЯ ИНТЕГРАЦИЯ?</h2>
+            <p class="text-gray-700 mb-4">Процесс интеграции включает в себя придание смысла и включение озарений, эмоций и изменений, которые могут возникнуть во время психоделического путешествия, в вашу повседневную жизнь. Интеграция — это существенный аспект психоделического опыта, потому что эти вещества могут вызывать интенсивные и часто сложные озарения, эмоции и сдвиги в перспективе.</p>
+            <p class="text-gray-700 mb-4">Не существует универсального подхода к интеграции. Вы можете делать это самостоятельно или с поддержкой сверстников, сообщества, тренеров или терапевтов. Существует большое разнообразие стратегий интеграции и много фреймворков и практик, которые можно использовать.</p>
+            <p class="text-gray-700">Психоделическая интеграция — это личный и постоянный процесс. Опыт каждого человека уникален, и процесс интеграции может развиваться в течение длительного времени. Профессиональное или опытное руководство, когда оно доступно, может быть полезным при содействии более структурированному и поддерживающему процессе интеграции.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПОЧЕМУ МНЕ НУЖНА РАБОЧАЯ ТЕТРАДЬ ПО ИНТЕГРАЦИИ? --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПОЧЕМУ МНЕ НУЖНА РАБОЧАЯ ТЕТРАДЬ ПО ИНТЕГРАЦИИ?</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="area-card">
+                    <i class="fas fa-brain text-indigo-600 text-3xl mb-2"></i>
+                    <h3 class="font-bold text-xl text-indigo-600 mb-1">Размышление и переработка</h3>
+                    <p class="text-gray-700">Психоделические опыты могут быть интенсивными и глубокими. Эта тетрадь предоставляет пространство для размышления и обработки этих опытов структурированным и преднамеренным способом.</p>
+                </div>
+                <div class="area-card">
+                    <i class="fas fa-memory text-indigo-600 text-3xl mb-2"></i>
+                    <h3 class="font-bold text-xl text-indigo-600 mb-1">Улучшение памяти</h3>
+                    <p class="text-gray-700">Тетрадь может помочь вам захватить и сохранить детали, которые может быть сложно запомнить точно со временем, гарантируя, что у вас есть запись ваших мыслей и опытов.</p>
+                </div>
+                <div class="area-card">
+                    <i class="fas fa-pen-fancy text-indigo-600 text-3xl mb-2"></i>
+                    <h3 class="font-bold text-xl text-indigo-600 mb-1">Эмоциональное выражение</h3>
+                    <p class="text-gray-700">Написание позволяет вам выражать и исследовать свои эмоции в безопасном и приватном пространстве, что особенно важно при работе со сложными эмоциями.</p>
+                </div>
+                <div class="area-card">
+                    <i class="fas fa-chart-line text-indigo-600 text-3xl mb-2"></i>
+                    <h3 class="font-bold text-xl text-indigo-600 mb-1">Отмечание прогресса</h3>
+                    <p class="text-gray-700">Регулярное документирование мыслей и чувств позволяет вам отслеживать ваш прогресс, рост и изменения, обеспечивая чувство достижения.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПЕРЕД ТЕМ, КАК НАЧАТЬ --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПЕРЕД ТЕМ, КАК НАЧАТЬ</h2>
+            <ol class="list-decimal pl-5 space-y-4 text-gray-700">
+                <li><strong class="text-indigo-600">Установите намерения:</strong> Подумайте, что вы надеетесь исследовать, понять или поработать во время опыта.</li>
+                <li><strong class="text-indigo-600">Выберите поддерживающую обстановку:</strong> Убедитесь, что физическое и социальное окружение безопасно, удобно и поддерживающе.</li>
+                <li><strong class="text-indigo-600">Культивируйте практики осознанности:</strong> Включите ведение дневника, медитацию или упражнения глубокого дыхания в вашу ежедневную рутину.</li>
+                <li><strong class="text-indigo-600">Установите план интеграции:</strong> Определите действия или практики, в которых вы можете участвовать после опыта.</li>
+                <li><strong class="text-indigo-600">Постройте систему поддержки:</strong> Свяжитесь с друзьями, семьей или сообществом, которые понимают и поддерживают вашу решимость исследовать психоделики.</li>
+            </ol>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- КОГДА СЛЕДУЕТ ИНТЕГРИРОВАТЬСЯ И КАК ДОЛГО? --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">КОГДА СЛЕДУЕТ ИНТЕГРИРОВАТЯ И КАК ДОЛГО?</h2>
+            <h3 class="text-2xl font-semibold text-indigo-600 mb-2">Правильное время для начала</h3>
+            <p class="text-gray-700 mb-4">Многие выбирают начать интеграцию вскоре после психоделического опыта. Считается, что этот опыт приводит к периоду повышенной нейропластичности, который длится от нескольких дней до месяца или около того используя этот период восприимчивости к изменениям.</p>
+            <h3 class="text-2xl font-semibold text-indigo-600 mb-2">Интеграция как процесс на всю жизнь</h3>
+            <p class="text-gray-700">Интеграция — это не одноразовое событие, а постоянный процесс. Вы можете продолжать интегрировать глубокий психоделический опыт на протяжении многих лет или даже всей жизни.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ПОНИМАНИЕ «ХОРОШИХ» И «ПЛОХИХ» ПУТЕШЕСТВИЙ --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ПОНИМАНИЕ «ХОРОШИХ» И «ПЛОХИХ» ПУТЕШЕСТВИЙ</h2>
+            <p class="text-gray-700 mb-4">Мы поощряем вас глубже погрузиться и подойти к себе, миру и опытам как можно более холистически. Удовольствие, если его преследовать, может стать частью вредных циклов; вызовы, если им противостоять, могут произвести некоторые из наиболее значимых и длительных влияний.</p>
+            <p class="text-lg font-bold text-center text-red-600 bg-red-50 p-3 rounded-lg mt-4 shadow-sm">«Трудное не значит плохое»</p>
+            <p class="text-sm text-gray-600 mt-2">Если у вас был сложный или сложный опыт, вы не одиноки. Доступна помощь во всех формах, от быстрых советов до добровольцев и профессионалов, которые специализируются на интеграции сложных опытов.</p>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ШЕСТЬ ОБЛАСТЕЙ ИНТЕГРАЦИИ --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-6">ШЕСТЬ ОБЛАСТЕЙ ИНТЕГРАЦИИ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-brain text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">УМ</h3>
+                        <p class="text-sm text-gray-600">Обработка и интеграция эмоций и озарений через язык и психические процессы.</p>
+                    </div>
+                </div>
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-heartbeat text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">ТЕЛО</h3>
+                        <p class="text-sm text-gray-600">Влияние на физическое здоровье, привычки и углубление связи с телом через практики осознанного движения.</p>
+                    </div>
+                </div>
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-hand-holding-heart text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">ДУХ</h3>
+                        <p class="text-sm text-gray-600">Исследование духовных или экзистенциальных озарений и их интеграция в ваше понимание цели и смысла жизни.</p>
+                    </div>
+                </div>
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-users text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">ОТНОШЕНИЯ</h3>
+                        <p class="text-sm text-gray-600">Размышление о влиянии опыта на связи с друзьями, семьей, партнерами или более широким сообществом.</p>
+                    </div>
+                </div>
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-tree text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">ПРИРОДА</h3>
+                        <p class="text-sm text-gray-600">Размышление о влиянии на экологическое сознание и практики, способствующие связи с естественным миром.</p>
+                    </div>
+                </div>
+                <div class="area-card flex-row items-center">
+                    <i class="fas fa-home text-indigo-700 text-3xl"></i>
+                    <div>
+                        <h3 class="font-bold text-xl text-indigo-700 mb-1">ОБРАЗ ЖИЗНИ</h3>
+                        <p class="text-sm text-gray-600">Определение рутин и привычек, которые поддерживают ваше благополучие, используя период повышенной нейропластичности.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ШЕСТЬ КОНТИНУУМОВ ИНТЕГРАЦИИ --><section class="mb-12 p-6 gradient-bg-section border-gray-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-6">ШЕСТЬ КОНТИНУУМОВ ИНТЕГРАЦИИ</h2>
+            <div class="space-y-4">
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-book-reader text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Созерцательное ↔ Экспрессивное</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Действия на этом континууме могут включать рассмотрение наших мыслей и чувств и/или их выражение. Это может быть медитация или экстатический танец.</p>
+                    <label class="block text-gray-700 font-medium">Как вы балансируете между внутренним размышлением и внешним выражением?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-eye text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Внутреннее ↔ Внешнее</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Когда мы работаем с этим континуумом, мы можем обратиться внутрь или переместить наше внимание в окружающий мир (ведение дневника или обмен опытом с другом).</p>
+                    <label class="block text-gray-700 font-medium">Когда вы чувствуете потребность обратиться внутрь, а когда — во внешний мир?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-paint-brush text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Творческое ↔ Восприимчивое</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Рисование, создание искусства (творческое) или получение глубокого озарения через мистические опыты (восприимчивое).</p>
+                    <label class="block text-gray-700 font-medium">Какой способ интеграции преобладает у вас: создание или восприятие?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-lightbulb text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Сознательное ↔ Бессознательное</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Переформирование ограничивающих убеждений (бессознательное) или внесение изменений в привычки (сознательное).</p>
+                    <label class="block text-gray-700 font-medium">Какие бессознательные убеждения проявились и требуют сознательной работы?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-hand-holding-medical text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Забота о себе ↔ Вызов себе</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Интеграция может быть пространством для самообслуживания, но часто включает элемент вызова, который является важной частью роста.</p>
+                    <label class="block text-gray-700 font-medium">Где вам нужно больше заботы о себе, а где — намеренно принять вызов?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+                <div class="area-card bg-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-running text-indigo-700 text-2xl"></i>
+                        <h3 class="font-bold text-xl text-indigo-700">Активное ↔ Пассивное</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Этот континуум напоминает нам, что смыслоделание может происходить как через действие, так и через отдых. Игра в любимый спорт или медитация.</p>
+                    <label class="block text-gray-700 font-medium">Какие активные и пассивные практики интеграции вы используете?
+                        <div class="writing-block" style="min-height: 80px;">Запишите ваш ответ в вашу тетрадь...</div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: УМ --><section class="mb-12 p-6 bg-yellow-50 border border-yellow-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-yellow-800 mb-4">ОБЛАСТЬ: УМ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Как психоделический опыт повлиял на ваши эмоции? Были ли моменты интенсивной радости, страха или грусти?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Как ваши паттерны мышления сдвинулись с момента вашего психоделического опыта? Есть ли повторяющиеся темы или новые перспективы?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете включить осознанность в вашу ежедневную рутину для поддержания психической ясности?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте роль благодарности в вашей жизни. За что вы благодарны?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ТЕЛО --><section class="mb-12 p-6 bg-red-50 border border-red-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-red-800 mb-4">ОБЛАСТЬ: ТЕЛО</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">При воспоминании частей вашего опыта, какие ощущения вы замечаете в вашем теле или вокруг него?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите, как ваш опыт может повлиять на ваши отношения с едой и общее благополучие. Есть ли изменения, которые вы хотели бы внедрить?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете поддерживать более глубокую связь с вашим телом через практики, такие как йога, медитация или осознанное движение?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ДУХ --><section class="mb-12 p-6 bg-yellow-50 border border-yellow-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-yellow-800 mb-4">ОБЛАСТЬ: ДУХ</h2>
+             <label class="block text-gray-700 font-medium">Размышляйте об опытах духовного соединения или чувстве единства во время путешествия. Как вы можете питать и интегрировать эту связь в ваши духовные практики?
+                <div class="writing-block" style="min-height: 120px;">Запишите ваш ответ в вашу тетрадь...</div>
+            </label>
+            <div class="space-y-4 mt-4">
+                <label class="block text-gray-700 font-medium">Исследуйте практики, которые соответствуют уму, телу и духу.
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите любые смены в ваших убеждениях или перспективах на духовность.
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ОТНОШЕНИЯ --><section class="mb-12 p-6 bg-purple-50 border border-purple-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-purple-800 mb-4">ОБЛАСТЬ: ОТНОШЕНИЯ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Размышляйте о влиянии вашего опыта на ваши отношения. Как вы можете способствовать более глубоким связям и более открытой коммуникации?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте, существуют ли безопасные и поддерживающие пространства для обмена вашими психоделическими опытами в вашем сообществе.
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Рассмотрите, есть ли аспекты вашей коммуникации или поведения, которые вы хотели бы улучшить.
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ПРИРОДА --><section class="mb-12 p-6 bg-indigo-50 border border-indigo-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-indigo-800 mb-4">ОБЛАСТЬ: ПРИРОДА</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Размышляйте об опытах соединения с природой. Как вы можете продолжить способствовать отношениям с естественным миром в своей повседневной жизни?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Исследуйте, как ваши психоделические озарения могут повлиять на вашу экологическую осведомленность и какие инициативы вы вдохновлены поддерживать?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЛАСТЬ: ОБРАЗ ЖИЗНИ --><section class="mb-12 p-6 bg-green-50 border border-green-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-green-800 mb-4">ОБЛАСТЬ: ОБРАЗ ЖИЗНИ</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Определите ритуалы или рутины, которые поддерживают ваше благополучие в областях ума, тела и духа.
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Размышляйте о важности установки здоровых границ. Как вы можете установить и сообщить границы?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Определите конкретные действия или привычки, которые соответствуют положительным аспектам вашего путешествия. Как вы можете постепенно их внедрить?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ОБЗОР ВАШЕГО ОПЫТА (Продолжение) --><section class="mb-12 p-6 bg-indigo-50 border border-indigo-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-indigo-800 mb-4">ОБЗОР ВАШЕГО ОПЫТА (Продолжение)</h2>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Каковы были ваши намерения для этого опыта?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Опишите общее чувство вашего психоделического опыта. Какие эмоции, мысли и ощущения выделились для вас больше всего?
+                    <div class="writing-block" style="min-height: 120px;">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Как вы можете обратиться и обработать эти эмоции полезным способом?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ХУДОЖЕСТВЕННОЕ ВЫРАЖЕНИЕ --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ХУДОЖЕСТВЕННОЕ ВЫРАЖЕНИЕ</h2>
+            <div class="area-card bg-purple-50 border-purple-200">
+                <p class="text-lg font-bold text-purple-700 mb-3">Искусство может дать озарение в бессознательное, давая голос чему-то сверх того, что может понять эго.</p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Как вы можете продолжить выражение себя творчески в своей повседневной жизни?</h3>
+                <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-4">Размышляйте о символизме и смысле, стоящих за вашими творениями.</h3>
+                <div class="writing-block" style="min-height: 120px;">Запишите ваш ответ в вашу тетрадь...</div>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ИНТЕГРАЦИЯ ВАШЕЙ ИНТЕГРАЦИИ --><section class="mb-12 p-6 bg-blue-50 border border-blue-200 rounded-xl scroll-reveal">
+            <h2 class="text-3xl font-semibold text-blue-800 mb-4">ИНТЕГРАЦИЯ ВАШЕЙ ИНТЕГРАЦИИ</h2>
+            <p class="text-gray-700 mb-4">Размышляйте о ваших интеграционных деятельности. Появляются ли какие-то новые темы или озарения?</p>
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium">Появилось ли что-нибудь, что вы хотели бы разделить с членом вашей сети поддержки?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+                <label class="block text-gray-700 font-medium">Что вы хотели бы помнить в следующий раз, когда вы устанавливаете намерения?
+                    <div class="writing-block">Запишите ваш ответ в вашу тетрадь...</div>
+                </label>
+            </div>
+        </section>
+
+        <div class="section-separator"></div>
+
+        <!-- ЧТО ДАЛЬШЕ? --><section class="mb-12 scroll-reveal">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">ЧТО ДАЛЬШЕ?</h2>
+            <p class="text-lg font-bold text-indigo-600 mb-3">Поздравления!</p>
+            <p class="text-gray-700 mb-6">Теперь, когда вы интегрировали ваш психоделический опыт, вы начали постоянное путешествие личностного и духовного роста. Пост-интеграция — это не фиксированная конечная точка, а скорее продолжение преобразующего процесса.</p>
+            
+            <h3 class="text-2xl font-semibold text-gray-800 mb-3">Ключевые направления движения вперед:</h3>
+            <ul class="list-disc pl-5 space-y-3 text-gray-700">
+                <li><strong class="text-indigo-600">Постоянное самоанализ:</strong> Культивируйте привычку регулярного самоанализа.</li>
+                <li><strong class="text-indigo-600">Интеграция уроков в повседневную жизнь:</strong> Активно применяйте озарения, полученные во время интеграции, в ваш ежедневный выбор.</li>
+                <li><strong class="text-indigo-600">Поиск профессионального руководства:</strong> При необходимости, продолжайте искать руководство у терапевтов или консультантов.</li>
+                <li><strong class="text-indigo-600">Установление новых намерений:</strong> Рассмотрите установление новых намерений для вашего постоянного путешествия.</li>
+            </ul>
+        </section>
+
+        <!-- Заключительное примечание -->
+        <footer class="mt-10 pt-6 border-t border-gray-300 text-center scroll-reveal">
+            <p class="text-sm text-gray-500 mb-4">Важно подходить к этому периоду после интеграции с терпением и открытостью. Всегда приоритизируйте свое благополучие.</p>
+            <p class="text-xs text-gray-400">**© 2025 MAPS (Мультидисциплинарная ассоциация психоделических исследований)**</p>
+            <p class="text-xs text-gray-400">Это произведение распространяется в образовательных целях. Для получения дополнительной информации посетите <a href="https://maps.org" target="_blank" class="text-indigo-500 hover:text-indigo-700">maps.org</a></p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+            
+            // Инициализация IntersectionObserver для анимации при прокрутке
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 });
+
+                scrollRevealElements.forEach(element => {
+                    observer.observe(element);
+                });
+            } else {
+                // Фоллбэк: если Observer не поддерживается, сразу показываем элементы
+                scrollRevealElements.forEach(element => {
+                    element.classList.add('visible');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
